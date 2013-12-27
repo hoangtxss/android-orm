@@ -83,7 +83,7 @@ public class DatabaseDescriptorParser extends SiminovSAXDefaultHandler implement
 	
 	private Resources resources = Resources.getInstance();
 
-	private String tempValue = null;
+	private StringBuilder tempValue = new StringBuilder();
 	private String propertyName = null;
 
 	public DatabaseDescriptorParser(final String databaseDescriptorPath) {
@@ -125,7 +125,7 @@ public class DatabaseDescriptorParser extends SiminovSAXDefaultHandler implement
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		
-		tempValue = "";
+		tempValue = new StringBuilder();
 		
 		if(localName.equalsIgnoreCase(DATABASE_DESCRIPTOR)) {
 			databaseDescriptor = new DatabaseDescriptor();
@@ -137,20 +137,21 @@ public class DatabaseDescriptorParser extends SiminovSAXDefaultHandler implement
 	}
 	
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		tempValue = new String(ch,start,length);
+		String value = new String(ch,start,length);
 		
-		if(tempValue == null || tempValue.length() <= 0) {
+		if(value == null || value.length() <= 0 || value.equalsIgnoreCase(NEW_LINE)) {
 			return;
 		}
 		
-		tempValue.trim();
+		value = value.trim();
+		tempValue.append(value);
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if(localName.equalsIgnoreCase(DATABASE_DESCRIPTOR_PROPERTY)) {
-			databaseDescriptor.addProperty(propertyName, tempValue);
+			databaseDescriptor.addProperty(propertyName, tempValue.toString());
 		} else if(localName.equalsIgnoreCase(DATABASE_DESCRIPTOR_LIBRARY)) {
-			databaseDescriptor.addLibraryPath(tempValue);
+			databaseDescriptor.addLibraryPath(tempValue.toString());
 		} 
 	}
 	

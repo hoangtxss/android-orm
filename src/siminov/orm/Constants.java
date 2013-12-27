@@ -1027,4 +1027,7 @@ public interface Constants {
 	 * Android Metadata Table Name
 	 */
 	public String ANDROID_METADATA_TABLE_NAME = "android_metadata";
+	
+	public String NEW_LINE = "\n";
+	
 }

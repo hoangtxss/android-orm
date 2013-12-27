@@ -86,7 +86,7 @@ Example:
  */
 public class DatabaseMappingDescriptorParser extends SiminovSAXDefaultHandler implements Constants {
 
-	private String tempValue = null;
+	private StringBuilder tempValue = new StringBuilder();
 	private String propertyName = null;
 	
 	private String databaseMappingName = null;
@@ -187,7 +187,7 @@ public class DatabaseMappingDescriptorParser extends SiminovSAXDefaultHandler im
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		
-		tempValue = "";
+		tempValue = new StringBuilder();
 		
 		if(localName.equalsIgnoreCase(DATABASE_MAPPING_DESCRIPTOR_DATABASE_MAPPING)) {
 			databaseMapping = new DatabaseMappingDescriptor();
@@ -227,13 +227,14 @@ public class DatabaseMappingDescriptorParser extends SiminovSAXDefaultHandler im
 	}
 	
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		tempValue = new String(ch,start,length);
+		String value = new String(ch,start,length);
 		
-		if(tempValue == null || tempValue.length() <= 0) {
+		if(value == null || value.length() <= 0 || value.equalsIgnoreCase(NEW_LINE)) {
 			return;
 		}
 		
-		tempValue.trim();
+		value = value.trim();
+		tempValue.append(value);
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -241,7 +242,7 @@ public class DatabaseMappingDescriptorParser extends SiminovSAXDefaultHandler im
 			processProperty();
 		} else if(localName.equalsIgnoreCase(DATABASE_MAPPING_DESCRIPTOR_COLUMN)) {
 			if(currentIndex != null) {
-				currentIndex.addColumn(tempValue);
+				currentIndex.addColumn(tempValue.toString());
 				return;
 			}
 			
@@ -344,9 +345,9 @@ public class DatabaseMappingDescriptorParser extends SiminovSAXDefaultHandler im
 	private void processProperty() {
 		
 		if(isRelationship) {
-			currectRelationship.addProperty(propertyName, tempValue);
+			currectRelationship.addProperty(propertyName, tempValue.toString());
 		} else if(isColumn) {
-			currentColumn.addProperty(propertyName, tempValue);
+			currentColumn.addProperty(propertyName, tempValue.toString());
 		}
 	}
 	
